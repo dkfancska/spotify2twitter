@@ -9,7 +9,7 @@ def auth_sp():
                                                    client_secret=os.getenv('SPOTIPY_CLIENT_SECRET'),
                                                    redirect_uri=os.getenv(
                                                        'SPOTIPY_REDIRECT_URI=http://localhost:8888/callback/'),
-                                                   scope="user-read-currently-playing"
+                                                   scope="user-read-currently-playing,user-top-read"
                                                    ))
     return sp
 
@@ -33,5 +33,28 @@ def current_track():
 
         time.sleep(10)
 
+
+def top_atrists():
+    descr_range = {
+        'short_term': "last month",
+        'medium_term': "last 6 month",
+        'long_term': "all time",
+    }
+    # Подробное описание типов
+    # https://developer.spotify.com/documentation/web-api/reference/#endpoint-get-users-top-artists-and-tracks
+
+    limit = 5
+
+    spotipy_client = auth_sp()
+    ranges = ['short_term', 'medium_term', 'long_term']
+    for sp_range in ranges:
+        print("My top artist for", descr_range.get(sp_range, "Invalid month"), ':')
+        results = spotipy_client.current_user_top_artists(time_range=sp_range, limit=limit)
+
+        for i, item in enumerate(results['items']):
+            print(i, item['name'])
+        print()
+
+
 if __name__ == '__main__':
-    current_track()
+    top_atrists()
