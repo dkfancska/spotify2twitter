@@ -7,8 +7,7 @@ from spotipy.oauth2 import SpotifyOAuth
 def auth_sp():
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.getenv('SPOTIPY_CLIENT_ID'),
                                                    client_secret=os.getenv('SPOTIPY_CLIENT_SECRET'),
-                                                   redirect_uri=os.getenv(
-                                                       'SPOTIPY_REDIRECT_URI=http://localhost:8888/callback/'),
+                                                   redirect_uri=os.getenv('SPOTIPY_REDIRECT_URI'),
                                                    scope="user-read-currently-playing,user-top-read"
                                                    ))
     return sp
@@ -34,7 +33,7 @@ def current_track():
         time.sleep(10)
 
 
-def top_atrists():
+def top_artists():
     descr_range = {
         'short_term': "last month",
         'medium_term': "last 6 month",
@@ -55,6 +54,30 @@ def top_atrists():
             print(i, item['name'])
         print()
 
+def top_tracks():
+    descr_range = {
+        'short_term': "last month",
+        'medium_term': "last 6 month",
+        'long_term': "all time",
+    }
+    # Подробное описание типов
+    # https://developer.spotify.com/documentation/web-api/reference/#endpoint-get-users-top-artists-and-tracks
+
+    limit = 5
+
+    spotipy_client = auth_sp()
+    ranges = ['short_term', 'medium_term', 'long_term']
+    for sp_range in ranges:
+        print("My top songs for", descr_range.get(sp_range, "Invalid month"), ':')
+        results = spotipy_client.current_user_top_tracks(time_range=sp_range, limit=limit)
+
+        for i, item in enumerate(results['items']):
+            print(i, item['name'])
+        print()
+
+
+
+
 
 if __name__ == '__main__':
-    top_atrists()
+    top_tracks()
