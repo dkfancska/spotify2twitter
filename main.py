@@ -13,12 +13,11 @@ def auth_sp():
     return sp
 
 
-def current_track():
-    spotipy_client = auth_sp()
+def current_track(spotify_client):
     last_song_name = ''
     last_artist_name = ''
     while (True):
-        results_me = spotipy_client.currently_playing()
+        results_me = spotify_client.currently_playing()
 
         current_song_name = results_me['item']['name']
         current_artist_name = results_me['item']['artists'][0]['name']
@@ -26,14 +25,14 @@ def current_track():
         song_percent = results_me['progress_ms'] / results_me['item']['duration_ms']
 
         if (last_artist_name != current_artist_name) & (last_song_name != current_song_name) & (song_percent >= 0.3):
-            print('Now playing: ' + current_artist_name + ' - ' + current_song_name)
+            print('Now playing: ', current_artist_name, ' - ', current_song_name)
             last_artist_name = current_artist_name
             last_song_name = current_song_name
 
         time.sleep(10)
 
 
-def top_artists():
+def top_artists(spotify_client):
     descr_range = {
         'short_term': "last month",
         'medium_term': "last 6 month",
@@ -44,17 +43,20 @@ def top_artists():
 
     limit = 5
 
-    spotipy_client = auth_sp()
     ranges = ['short_term', 'medium_term', 'long_term']
     for sp_range in ranges:
         print("My top artist for", descr_range.get(sp_range, "Invalid month"), ':')
-        results = spotipy_client.current_user_top_artists(time_range=sp_range, limit=limit)
+        results = spotify_client.current_user_top_artists(time_range=sp_range, limit=limit)
 
         for i, item in enumerate(results['items']):
-            print(i, item['name'])
+            print(
+                i,
+                item['name']
+            )
         print()
 
-def top_tracks():
+
+def top_tracks(spotify_client):
     descr_range = {
         'short_term': "last month",
         'medium_term': "last 6 month",
@@ -65,19 +67,22 @@ def top_tracks():
 
     limit = 5
 
-    spotipy_client = auth_sp()
     ranges = ['short_term', 'medium_term', 'long_term']
     for sp_range in ranges:
         print("My top songs for", descr_range.get(sp_range, "Invalid month"), ':')
-        results = spotipy_client.current_user_top_tracks(time_range=sp_range, limit=limit)
+        results = spotify_client.current_user_top_tracks(time_range=sp_range, limit=limit)
 
         for i, item in enumerate(results['items']):
-            print(i, item['name'])
+            print(
+                i,
+                item['artists'][0]['name'],
+                '-', item['name']
+            )
         print()
 
 
-
-
-
 if __name__ == '__main__':
-    top_tracks()
+    spotify_client = auth_sp()
+    current_track(spotify_client)
+    top_tracks(spotify_client)
+    top_artists(spotify_client)
